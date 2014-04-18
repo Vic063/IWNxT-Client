@@ -44,6 +44,7 @@ typedef void (*initAPI)( void );
 typedef bool (*inviteFriend)( uint64_t friendID );
 typedef bool (*inviteRequest)( SFriend *s );
 typedef EPersonaState (*friendPersonaState)( uint64_t friendID );
+typedef void (*shutdownAPI)( void );
 
 /* Define all global variables to be used everywhere */
 extern HMODULE iwnxtMod;
@@ -55,6 +56,7 @@ extern initAPI InitializeAPI;
 extern inviteFriend InviteFriend;
 extern inviteRequest InviteCallback;
 extern friendPersonaState getFriendPersonaState;
+extern shutdownAPI ShutdownAPI;
 
 /*
 Here is a quick reminder of all exported functions from the IWNxT API
@@ -67,6 +69,7 @@ Here is a quick reminder of all exported functions from the IWNxT API
 - InviteFriend: send an invite request to the specified friend. Returns 1 if succeed, 0 otherwise
 - InviteCallback: check if we have received an invitation from a friend. The given SFriend struct is populated if the function returns true
 - GetFriendPersonaState: retrieve the state of the specified friend. Check the EPersonaState struct to know each differents values
+- ShutdownAPI: shut down the IWNxT API
 */
 
 #endif /* _IWNXT_API_H */

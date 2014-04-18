@@ -30,6 +30,7 @@ friendByIndex getFriendByIndex;
 inviteFriend InviteFriend;
 inviteRequest InviteCallback;
 friendPersonaState getFriendPersonaState;
+shutdownAPI ShutdownAPI;
 
 /* global variables, yeah I know, it's ugly */
 friend_t *friendsTab;
@@ -93,8 +94,24 @@ DWORD WINAPI updateThread( LPVOID lParams )
 
 void freeLibrary()
 {
+	if (ShutdownAPI != NULL)
+		ShutdownAPI();
+
 	cout << "Freeing IWNxT.dll." << endl;
 	FreeLibrary(iwnxtMod);
+}
+
+/* Catch Ctrl+ actions */
+BOOL CtrlHandler( DWORD fdwCtrlType ) 
+{
+	switch (fdwCtrlType)
+	{
+		case CTRL_C_EVENT:
+			freeLibrary();
+			exit(0);
+	}
+
+	return FALSE;
 }
 
 int main( void )
@@ -115,7 +132,8 @@ int main( void )
 
 	/* If it started correctly, then the dll entry point is loaded and we have nothing to do ;) */
 	InitializeAPI = (initAPI)GetProcAddress(iwnxtMod, "InitializeAPI");
-	if (InitializeAPI == NULL)
+	ShutdownAPI = (shutdownAPI)GetProcAddress(iwnxtMod, "ShutdownAPI");
+	if (InitializeAPI == NULL || ShutdownAPI == NULL)
 	{
 		cerr << "Cannot load API core." << endl;		
 		freeLibrary();
@@ -124,6 +142,14 @@ int main( void )
 
 	/* Initialize the API, it's mandatory to use others methods */
 	InitializeAPI();
+
+	/* Add a handler which will check if the user typed Ctrl+C combination */
+	if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE))
+	{
+		cerr << "Cannot install handler." << endl;
+		freeLibrary();
+		return 1;
+	}
 
 	getUserID = (userID)GetProcAddress(iwnxtMod, "GetUserID");
 	if (getUserID == NULL)
@@ -174,7 +200,7 @@ int main( void )
 	}
 
 	/* Sleep during 2 minutes */
-	Sleep(120000);
+	Sleep(12000);
 	TerminateThread(hThread, 0);
 
 	/* Don't forget to free the memory took by the library! */
