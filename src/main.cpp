@@ -122,7 +122,11 @@ int main( void )
 	HANDLE hThread;
 
 	/* First, load the IWNxT library */
+#ifndef _WIN64
 	iwnxtMod = LoadLibrary(L"IWNxT.dll");
+#else
+	iwnxtMod = LoadLibrary(L"IWNxT_x64.dll");
+#endif
 	if (iwnxtMod == NULL)
 	{
 		DWORD dwRet = GetLastError();
@@ -200,7 +204,7 @@ int main( void )
 	}
 
 	/* Sleep during 2 minutes */
-	Sleep(12000);
+	Sleep(120000);
 	TerminateThread(hThread, 0);
 
 	/* Don't forget to free the memory took by the library! */
